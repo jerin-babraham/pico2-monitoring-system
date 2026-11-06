@@ -4,6 +4,24 @@ A Raspberry Pi Pico reads a GPS module and a temperature sensor, then streams
 the readings to a PC. The PC can receive over USB serial or over a direct
 Ethernet cable. Data comes in as one JSON object per line.
 
+## The system
+
+The PC dashboard receiving over Ethernet, with a GPS lock and the live
+temperature plot:
+
+![Monitor dashboard](docs/images/dashboard.jpg)
+
+The latitude and longitude readouts are blanked out in this screenshot.
+
+The hardware. Pico 2 in the centre, W5500 Ethernet module at the top right with
+the yellow cable running to the PC, and the GPS module at the bottom left:
+
+<p align="center">
+  <img src="docs/images/hardware-setup.jpg"
+       alt="Pico 2 wired to a W5500 Ethernet module and a GPS module"
+       width="340">
+</p>
+
 ## What is in this repo
 
 - Firmware in C for the Pico (gps_parser.c, gps_temp_monitor.c, tcp_client.c,
