@@ -56,7 +56,10 @@ except ImportError:
 # ───────────────────────────────────────────────────────────────────
 
 BAUD_RATE     = 115200
-TCP_HOST      = "0.0.0.0"
+# Bind to the PC's address on the Pico link, not 0.0.0.0. Listening on every
+# interface would also expose port 5005 to Wi-Fi and any other network the PC
+# is on. Override with --bind (use 0.0.0.0 to accept from anywhere).
+TCP_HOST      = "192.168.2.1"
 TCP_PORT      = 5005
 CSV_FILE      = "temperature_log.csv"
 BUFFER_SIZE   = 4096
@@ -615,7 +618,7 @@ def cmd_tcp(args):
     print("║   NEO-M8N + Pico 2 RP2350 + W5500           ║")
     print("╚═════════════════════════════════════════════╝")
     print(f"{RESET}")
-    print(f"  Listening on : {BOLD}0.0.0.0:{args.tcp_port}{RESET}")
+    print(f"  Listening on : {BOLD}{args.bind}:{args.tcp_port}{RESET}")
     print(f"  Saving to    : {BOLD}{args.output}{RESET}")
     if plotter:
         print(f"  Live plot    : {BOLD}ENABLED{RESET}")
@@ -632,7 +635,16 @@ def cmd_tcp(args):
     server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
-    server_sock.bind((TCP_HOST, args.tcp_port))
+    try:
+        server_sock.bind((args.bind, args.tcp_port))
+    except OSError as e:
+        print()
+        print(f"  Cannot bind {args.bind}:{args.tcp_port} — {e}")
+        print(f"  Is this PC set to {args.bind}? See the Ethernet setup in the")
+        print("  README, or pass --bind 0.0.0.0 to listen on every interface.")
+        print()
+        csv_file.close()
+        return
     server_sock.listen(1)
 
     print(f"\n{CYAN}  Waiting for Pico to connect...{RESET}\n")
@@ -893,6 +905,9 @@ examples:
     sp_tcp = sub.add_parser("tcp", help="Receive via TCP/Ethernet (W5500)")
     sp_tcp.add_argument("--tcp-port", type=int, default=TCP_PORT,
                         help=f"TCP port to listen on (default: {TCP_PORT})")
+    sp_tcp.add_argument("--bind", type=str, default=TCP_HOST,
+                        help=f"Address to listen on (default: {TCP_HOST}). "
+                             f"Use 0.0.0.0 to accept from any interface.")
     sp_tcp.add_argument("--output", type=str, default=CSV_FILE,
                         help=f"CSV file (default: {CSV_FILE})")
     sp_tcp.add_argument("--plot", action="store_true",

@@ -850,10 +850,21 @@ class MonitorGUI:
                          f"use 1–65535.", level="error")
             self._close_csv()
             return
+        # Listen on this PC's address on the Pico link rather than 0.0.0.0,
+        # which would also expose the port to Wi-Fi and every other network.
+        bind_addr = self.server_ip_var.get().strip() or "0.0.0.0"
         try:
             self.tcp_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.tcp_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            self.tcp_server.bind(("0.0.0.0", tcp_port))
+            try:
+                self.tcp_server.bind((bind_addr, tcp_port))
+            except OSError:
+                # Not an address on this PC yet. Stay usable, but say so.
+                self.tcp_server.bind(("0.0.0.0", tcp_port))
+                self._notify(f"{bind_addr} is not an address on this PC — "
+                             f"listening on all interfaces instead.",
+                             level="warn")
+                bind_addr = "0.0.0.0"
             self.tcp_server.listen(1)
             self.tcp_server.settimeout(1.0)
         except OSError as e:
@@ -866,7 +877,7 @@ class MonitorGUI:
         self.connect_btn.config(text="  ■  STOP LISTENER", bg=RED,
                                 activebackground=RED_DIM)
         self._add_hover(self.connect_btn, RED, RED_DIM)
-        self._notify(f"TCP listening on 0.0.0.0:{tcp_port} — waiting for Pico…",
+        self._notify(f"TCP listening on {bind_addr}:{tcp_port} — waiting for Pico…",
                      level="info")
         self._start_pulse()
 

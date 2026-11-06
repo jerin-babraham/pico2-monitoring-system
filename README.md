@@ -11,7 +11,9 @@ temperature plot:
 
 ![Monitor dashboard](docs/images/dashboard.jpg)
 
-The latitude and longitude readouts are blanked out in this screenshot.
+The latitude and longitude readouts are blanked out in this screenshot. The
+PICO TARGET box reads 192.168.1.30 because the shot was taken on a different
+network; the Ethernet setup described below uses 192.168.2.1.
 
 The hardware. Pico 2 in the centre, W5500 Ethernet module at the top right with
 the yellow cable running to the PC, and the GPS module at the bottom left:
@@ -92,7 +94,7 @@ nothing to change on the Pico.
 3. Allow the firewall. The first time you run the receiver, click Allow access
    on the Windows Firewall prompt and tick both Private and Public. A direct
    cable is often classed as Public. To pre-allow it as admin:
-   - netsh advfirewall firewall add rule name="GPS Monitor 5005" dir=in action=allow protocol=TCP localport=5005
+   - netsh advfirewall firewall add rule name="GPS Monitor 5005" dir=in action=allow protocol=TCP localport=5005 localip=192.168.2.1
 4. Verify and run.
    - ping 192.168.2.2, replies mean the link is good
    - python receiver.py tcp, or python monitor_gui.py and pick TCP (Ethernet)
@@ -103,6 +105,10 @@ Things to watch for:
 - Do not move the USB to Ethernet dongle to another port afterward. It
   re-enumerates and reverts to APIPA.
 - Your Wi-Fi and internet are untouched. Only the wired adapter changes.
+- The receiver listens on 192.168.2.1 only, not on every interface, so port
+  5005 is not reachable from Wi-Fi or any other network the PC is on. If you
+  do want that, run receiver.py tcp --bind 0.0.0.0. The GUI binds to whatever
+  is in the PICO TARGET box, and warns if it falls back to all interfaces.
 
 ### Using a different PC IP or a router
 
