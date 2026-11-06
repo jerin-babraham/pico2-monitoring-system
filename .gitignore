@@ -1,0 +1,41 @@
+# ─── Python ──────────────────────────────────────────────────────────
+.venv/
+__pycache__/
+*.pyc
+
+# ─── Data / logs (machine-specific output) ───────────────────────────
+*.csv
+*.log
+
+# ─── CMake / Ninja build output ──────────────────────────────────────
+# The ONLY supported build dir is build/. Anything below is what an
+# accidental in-source build (running cmake from the project root)
+# leaves behind — all contain absolute, machine-specific paths.
+build/
+.cache/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CMakeScratch/
+*.ninja
+.ninja_log
+.ninja_deps
+compile_commands.json
+generated/
+pico_flash_region.ld
+
+# In-source mirror of the SDK build tree (NOT the real SDK, which lives
+# in ~/.pico-sdk on each machine). Safe to delete; regenerated on build.
+/pico-sdk/
+
+# Build products
+*.uf2
+*.elf
+*.bin
+*.hex
+*.dis
+*.elf.map
+
+# ─── VS Code: share portable configs, keep local-only settings out ───
+!.vscode/*
+.vscode/settings.json

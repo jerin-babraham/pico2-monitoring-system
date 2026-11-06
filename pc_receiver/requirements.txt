@@ -1,0 +1,7 @@
+# PC-side receiver / GUI dependencies.
+#   pip install -r requirements.txt
+#
+# pyserial  — USB serial reception + Pico auto-detection
+# matplotlib — live and offline temperature charts
+pyserial>=3.5
+matplotlib>=3.5
